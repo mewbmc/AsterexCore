@@ -1,0 +1,4 @@
+name: AsteroidCore
+version: '1.0-ALPHA '
+main: io.starseed.asteroidCore.AsteroidCore
+api-version: '1.20'

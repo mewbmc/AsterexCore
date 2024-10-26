@@ -5,7 +5,10 @@ import io.starseed.asteroidCore.config.ConfigurationManager;
 import io.starseed.asteroidCore.models.Planet;
 import io.starseed.asteroidCore.modules.BaseModule;
 import io.starseed.asteroidCore.modules.planet.commands.PlanetCommand;
+import io.starseed.asteroidCore.modules.planet.handlers.SchematicHandler;
+import io.starseed.asteroidCore.modules.planet.handlers.StructureHandler;
 import io.starseed.asteroidCore.modules.planet.listeners.PlanetListener;
+import io.starseed.asteroidCore.modules.planet.models.PlanetStructure;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -21,6 +24,8 @@ public class PlanetModule extends BaseModule {
     private final Map<Integer, Planet> loadedPlanets;
     private final Map<String, Map<String, Double>> defaultResourceRates;
     private final Random random;
+    private SchematicHandler schematicHandler;
+    private StructureHandler structureHandler;
     private FileConfiguration config;
 
     public PlanetModule(AsteroidCore plugin) {
@@ -35,6 +40,10 @@ public class PlanetModule extends BaseModule {
         // Load configuration
         ConfigurationManager.ModuleConfig moduleConfig = plugin.getConfigManager().getModuleConfig("planets");
         this.config = moduleConfig.getConfig();
+
+        // Initialize handlers
+        this.schematicHandler = new SchematicHandler(plugin);
+        this.structureHandler = new StructureHandler(plugin, schematicHandler);
 
         // Load default resource rates
         loadDefaultResourceRates();
@@ -189,5 +198,22 @@ public class PlanetModule extends BaseModule {
             planet.setLastRegeneration(java.time.Instant.now());
             plugin.getDatabaseManager().getPlanetDao().savePlanet(planet);
         });
+    }
+
+    public CompletableFuture<Boolean> placeStructure(Planet planet, String structureType, Location location, int rotation) {
+        if (!structureHandler.canPlaceStructure(structureType, location, planet.getLevel())) {
+            return CompletableFuture.completedFuture(false);
+        }
+
+        return structureHandler.placeStructure(structureType, location, rotation)
+            .thenApply(success -> {
+                if (success) {
+                    // Add structure to planet's structure list
+                    PlanetStructure structure = new PlanetStructure(-1, planet.getOwner(), structureType, 
+                        "default", location);
+                    planet.addStructure(structure);
+                }
+                return success;
+            });
     }
 }

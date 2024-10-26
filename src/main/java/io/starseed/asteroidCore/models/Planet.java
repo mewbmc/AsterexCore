@@ -1,5 +1,7 @@
 package io.starseed.asteroidCore.models;
 
+import io.starseed.asteroidCore.modules.planet.models.PlanetStructure;
+
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
@@ -44,4 +46,6 @@ public class Planet {
     public void setResourceRates(Map<String, Double> resourceRates) { this.resourceRates = resourceRates; }
     public Instant getLastRegeneration() { return lastRegeneration; }
     public void setLastRegeneration(Instant lastRegeneration) { this.lastRegeneration = lastRegeneration; }
+    public void addStructure(PlanetStructure structure) {
+    }
 }

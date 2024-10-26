@@ -58,7 +58,7 @@ public class PlanetWorldManager {
 
     /**
      * Sets up a planet world with appropriate settings
-     * @param world The world to setup
+     * @param world The world to set up
      */
     public void setupPlanetWorld(World world) {
         world.setKeepSpawnInMemory(false);
